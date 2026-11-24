@@ -1,36 +1,43 @@
 USE DATABASE RETAIL_DB;
 USE SCHEMA ANALYTICS;
 
--- 1. Monthly Revenue Trend
+-- Query 1: Total Sales Revenue
 SELECT
-    DATE_TRUNC('month', order_date) AS sales_month,
-    COUNT(DISTINCT order_id) AS total_orders,
-    SUM(quantity) AS total_units_sold,
-    ROUND(SUM(total_amount), 2) AS monthly_revenue
-FROM FACT_SALES
-GROUP BY 1
-ORDER BY 1;
+    ROUND(SUM(total_amount), 2) AS total_sales_revenue
+FROM FACT_SALES;
 
--- 2. Top 10 Best-Selling Products
+-- Query 2: Top Five Selling Products
 SELECT
     p.product_id,
     p.product_name,
-    SUM(f.quantity) AS units_sold,
+    SUM(f.quantity) AS total_units_sold,
     ROUND(SUM(f.total_amount), 2) AS total_revenue
 FROM FACT_SALES f
 JOIN DIM_PRODUCTS p ON f.product_id = p.product_id
 GROUP BY 1, 2
 ORDER BY total_revenue DESC
-LIMIT 10;
+LIMIT 5;
 
--- 3. Country-Wise Sales Performance
+-- Query 3: Country with Highest Revenue
 SELECT
     c.country,
-    COUNT(DISTINCT c.customer_id) AS unique_customers,
-    COUNT(DISTINCT f.order_id) AS total_orders,
     ROUND(SUM(f.total_amount), 2) AS total_revenue
 FROM FACT_SALES f
 JOIN DIM_CUSTOMERS c ON f.customer_id = c.customer_id
 GROUP BY 1
 ORDER BY total_revenue DESC
-LIMIT 10;
+LIMIT 1;
+
+-- Query 4: Monthly Sales Totals
+SELECT
+    sales_month,
+    total_orders,
+    total_units_sold,
+    monthly_revenue
+FROM AGG_MONTHLY_SALES
+ORDER BY sales_month;
+
+-- Query 5: Number of Unique Purchasing Customers
+SELECT
+    COUNT(DISTINCT customer_id) AS unique_purchasing_customers
+FROM FACT_SALES;

@@ -1,3 +1,11 @@
+{{
+    config(
+        materialized='incremental',
+        unique_key=['order_id', 'product_id'],
+        incremental_strategy='merge'
+    )
+}}
+
 SELECT
     s.order_id,
     s.customer_id,
@@ -11,3 +19,7 @@ INNER JOIN {{ ref('stg_products') }} p
     ON s.product_id = p.product_id
 INNER JOIN {{ ref('stg_customers') }} c
     ON s.customer_id = c.customer_id
+
+{% if is_incremental() %}
+WHERE s.order_date >= (SELECT COALESCE(MAX(order_date), '1900-01-01') FROM {{ this }})
+{% endif %}

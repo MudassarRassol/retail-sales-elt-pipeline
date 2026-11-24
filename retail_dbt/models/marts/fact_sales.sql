@@ -1,0 +1,13 @@
+SELECT
+    s.order_id,
+    s.customer_id,
+    s.product_id,
+    s.order_date,
+    s.quantity,
+    p.unit_price,
+    ROUND(s.quantity * p.unit_price, 2) AS total_amount
+FROM {{ ref('stg_sales') }} s
+INNER JOIN {{ ref('stg_products') }} p
+    ON s.product_id = p.product_id
+INNER JOIN {{ ref('stg_customers') }} c
+    ON s.customer_id = c.customer_id

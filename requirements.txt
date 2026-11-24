@@ -1,0 +1,5 @@
+pandas
+openpyxl
+requests
+azure-storage-blob
+dbt-snowflake
